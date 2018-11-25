@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Services\AgeCalculator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -16,25 +17,26 @@ class AgeCalculatorCommand extends Command
     protected function configure()
     {
         $this
-            ->setDescription('Add a short description for your command')
-            ->addArgument('arg1', InputArgument::OPTIONAL, 'Argument description')
-            ->addOption('option1', null, InputOption::VALUE_NONE, 'Option description')
+            ->setDescription('Calculate the age')
+            ->addArgument('date', InputArgument::REQUIRED, 'Birthday date, exp: 2012-10-15')
+            ->addOption('adult', null, InputOption::VALUE_NONE, 'is adult?')
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $io = new SymfonyStyle($input, $output);
-        $arg1 = $input->getArgument('arg1');
+        $date = $input->getArgument('date');
 
-        if ($arg1) {
-            $io->note(sprintf('You passed an argument: %s', $arg1));
+        $birthday = new AgeCalculator($date);
+        $age = $birthday->getAge();
+
+        if ($age) {
+            $io->note(sprintf('I\'m %s', $age));
         }
 
-        if ($input->getOption('option1')) {
-            // ...
+        if ($input->getOption('adult')) {
+           $age >= 18 ? $io->success('Am I an adult? ---- YES !!!') : $io->warning('Am I an adult? ---- NO !!!');
         }
-
-        $io->success('You have a new command! Now make it your own! Pass --help to see your options.');
     }
 }
